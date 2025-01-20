@@ -13,27 +13,32 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true  # Включаем инвариантный режим
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true  # Включаем инвариантный режим для глобализации
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Клонируем репозиторий
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libssl-dev libcurl4-openssl-dev
+          sudo apt-get install -y \
+            libssl-dev \
+            libcurl4-openssl-dev \
+            zlib1g-dev \
+            libicu-dev \
+            ca-certificates  # Устанавливаем все необходимые библиотеки
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 3.1
+          dotnet-version: 3.1  # Используем .NET Core 3.1
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore  # Восстанавливаем зависимости проекта
 
       - name: Build project
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release  # Сборка проекта
 
       - name: Run tests
-        run: dotnet test --no-build
+        run: dotnet test --no-build  # Запуск тестов
