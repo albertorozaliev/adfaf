@@ -29,3 +29,28 @@ jobs:
 
       - name: Run tests
         run: dotnet test --no-build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true  # Включаем инвариантный режим
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 3.1
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release
+
+      - name: Run tests
+        run: dotnet test --no-build
+
