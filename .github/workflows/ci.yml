@@ -12,33 +12,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: true  # Включаем инвариантный режим для глобализации
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Клонируем репозиторий
+        uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Set up Docker image with .NET Core SDK 3.1
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libssl-dev \
-            libcurl4-openssl-dev \
-            zlib1g-dev \
-            libicu-dev \
-            ca-certificates  # Устанавливаем все необходимые библиотеки
+          docker pull mcr.microsoft.com/dotnet/core/sdk:3.1  # Загружаем образ .NET Core 3.1
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 3.1  # Используем .NET Core 3.1
+      - name: Restore dependencies using Docker container
+        run: |
+          docker run --rm -v $(pwd):/app -w /app mcr.microsoft.com/dotnet/core/sdk:3.1 dotnet restore
 
-      - name: Restore dependencies
-        run: dotnet restore  # Восстанавливаем зависимости проекта
+      - name: Build project using Docker container
+        run: |
+          docker run --rm -v $(pwd):/app -w /app mcr.microsoft.com/dotnet/core/sdk:3.1 dotnet build --configuration Release
 
-      - name: Build project
-        run: dotnet build --configuration Release  # Сборка проекта
-
-      - name: Run tests
-        run: dotnet test --no-build  # Запуск тестов
+      - name: Run tests using Docker container
+        run: |
+          docker run --rm -v $(pwd):/app -w /app mcr.microsoft.com/dotnet/core/sdk:3.1 dotnet test --no-build
